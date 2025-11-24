@@ -1,0 +1,845 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:native_desktop_app.ViewModels"
+             x:Class="native_desktop_app.Views.ConfigView"
+             x:DataType="vm:ConfigViewModel"
+             x:Name="Root">
+    
+    <UserControl.Resources>
+        <vm:DayFlagConverter x:Key="DayFlagConverter" />
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto,Auto"
+          Margin="16">
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0"
+                   Text="Configuration"
+                   FontSize="22"
+                   FontWeight="Bold"
+                   Margin="0,0,0,12" />
+
+        <!-- Tabs -->
+        <TabControl Grid.Row="1"
+                    Margin="0,8,0,0">
+
+            <!-- MATERIALS TAB -->
+            <TabItem Header="Materials" Foreground="#EBDBB2">
+                <Grid Margin="0,4,0,0"
+                      RowDefinitions="Auto,*"
+                      ColumnDefinitions="2*,3*">
+
+                    <!-- Toolbar: ONLY Add Material stays here -->
+                    <StackPanel Grid.Row="0"
+                                Grid.ColumnSpan="2"
+                                Orientation="Horizontal"
+                                Spacing="8"
+                                VerticalAlignment="Center">
+
+                        <Button Content="Add Material"
+                                Height="32"
+                                Margin="16,0,0,0"
+                                Background="{StaticResource GruvYellow}"
+                                BorderBrush="{StaticResource GruvDarkGray}"
+                                BorderThickness="1"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource GruvBg}"
+                                CornerRadius="6"
+                                Padding="12,0"
+                                HorizontalAlignment="Left"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Command="{Binding AddMaterialCommand}" />
+                    </StackPanel>
+
+                    <!-- LEFT: material list (only name shown) -->
+                    <Border Grid.Row="1"
+                            Grid.Column="0"
+                            CornerRadius="8"
+                            Background="{StaticResource GruvDarkGray}"
+                            Padding="12"
+                            Margin="0,8,8,0"
+                            VerticalAlignment="Top">
+                        <StackPanel>
+                            <TextBlock Text="All materials"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource GruvFg}"
+                                       FontSize="16"
+                                       Margin="0,0,0,12" />
+
+                            <ListBox x:Name="MaterialList"
+                                     Background="Transparent"
+                                     ItemsSource="{Binding MaterialPricing}"
+                                     SelectedItem="{Binding SelectedMaterialPricingRow, Mode=TwoWay}">
+                                <ListBox.Styles>
+                                    <Style Selector="ListBoxItem">
+                                        <Setter Property="Padding" Value="8,6"/>
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                        <Setter Property="Margin" Value="0,2"/>
+                                    </Style>
+                                    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                                        <Setter Property="Background" Value="{StaticResource GruvGray}"/>
+                                    </Style>
+                                </ListBox.Styles>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:MaterialPricingRow">
+                                        <TextBlock Text="{Binding Name}" 
+                                                   Foreground="{StaticResource GruvFg}"
+                                                   FontWeight="Medium"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- RIGHT: selected material details (bound to ConfigViewModel) -->
+                    <Border Grid.Row="1"
+                            Grid.Column="1"
+                            Background="{StaticResource GruvDarkGray}"
+                            CornerRadius="8"
+                            Padding="16"
+                            Margin="8,8,0,0">
+                        <!-- DataContext is still ConfigViewModel -->
+                        <Grid x:DataType="vm:ConfigViewModel">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0"
+                                       Text="Material details"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource GruvFg}"
+                                       FontSize="16"
+                                       Margin="0,0,0,16" />
+
+                            <StackPanel Grid.Row="1"
+                                        Spacing="12">
+
+                                <!-- Name (read-only; from SelectedMaterialPricingRow) -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Name:"
+                                               Width="110"
+                                               Foreground="{StaticResource GruvLightGray}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding SelectedMaterialPricingRow.Name}"
+                                               Foreground="{StaticResource GruvFg}"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <!-- Type (read-only) -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Type:"
+                                               Width="110"
+                                               Foreground="{StaticResource GruvLightGray}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding SelectedMaterialPricingRow.MaterialTypeName}"
+                                               Foreground="{StaticResource GruvFg}"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <!-- Price (read-only, changed via dialog) -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Price:"
+                                               Width="110"
+                                               Foreground="{StaticResource GruvLightGray}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding SelectedMaterialPricingRow.CurrentPrice}"
+                                               Foreground="{StaticResource GruvYellow}"
+                                               FontWeight="Bold"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <!-- Last Updated (read-only) -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Last Updated:"
+                                               Width="110"
+                                               Foreground="{StaticResource GruvLightGray}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding SelectedMaterialPricingRow.PriceLastUpdated}"
+                                               Foreground="{StaticResource GruvFg}"
+                                               Opacity="0.8"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <!-- In Stock (the ONLY directly editable field) -->
+                                <StackPanel Orientation="Horizontal" Spacing="16"
+                                            Margin="0,8,0,0">
+                                    <CheckBox Content="In stock"
+                                              Foreground="{StaticResource GruvFg}"
+                                              IsChecked="{Binding SelectedMaterialPricingRow.IsInStock, Mode=TwoWay}" />
+                                </StackPanel>
+                            </StackPanel>
+
+
+                            <!-- Save All & Actions (Bottom Left) -->
+                            <StackPanel Grid.Row="2"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Left"
+                                        Spacing="12"
+                                        Margin="0,16,0,0">
+                                <Button Content="Save All"
+                                        Height="32"
+                                        Background="{StaticResource GruvGreen}"
+                                        Foreground="{StaticResource GruvBg}"
+                                        FontWeight="Bold"
+                                        CornerRadius="6"
+                                        Padding="24,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Command="{Binding SaveAllCommand}" />
+
+                                <Button Content="Change Price"
+                                        Height="32"
+                                        Background="{StaticResource GruvBlue}"
+                                        Foreground="{StaticResource GruvBg}"
+                                        FontWeight="Bold"
+                                        CornerRadius="6"
+                                        Padding="12,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Command="{Binding ShowChangeMaterialPriceDialogCommand}" />
+
+                                <Button Content="View History"
+                                        Height="32"
+                                        Background="{StaticResource GruvGray}"
+                                        Foreground="{StaticResource GruvBg}"
+                                        FontWeight="Bold"
+                                        CornerRadius="6"
+                                        Padding="12,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Command="{Binding ShowMaterialPriceHistoryDialogCommand}" />
+
+                                <Button Content="Delete Material"
+                                        Height="32"
+                                        Background="{StaticResource GruvRed}"
+                                        Foreground="{StaticResource GruvBg}"
+                                        FontWeight="Bold"
+                                        CornerRadius="6"
+                                        Padding="12,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Command="{Binding DeleteMaterialCommand}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+            
+            <!-- PRINTERS TAB -->
+            <TabItem Header="Printers" Foreground="#EBDBB2">
+                <Grid Margin="0,4,0,0"
+                      RowDefinitions="Auto,*"
+                      ColumnDefinitions="2*,3*">
+
+                    <!-- Toolbar -->
+                    <StackPanel Grid.Row="0"
+                                Grid.ColumnSpan="2"
+                                Orientation="Horizontal"
+                                Spacing="8"
+                                VerticalAlignment="Center">
+
+                        <Button Content="Refresh"
+                                Height="32"
+                                Background="{StaticResource GruvAqua}"
+                                BorderBrush="{StaticResource GruvDarkGray}"
+                                BorderThickness="1"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource GruvBg}"
+                                CornerRadius="6"
+                                Padding="12,0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Command="{Binding RefreshPrintersCommand}" />
+
+                        <Button Content="Add Printer"
+                                Height="32"
+                                Background="{StaticResource GruvYellow}"
+                                BorderBrush="{StaticResource GruvDarkGray}"
+                                BorderThickness="1"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource GruvBg}"
+                                CornerRadius="6"
+                                Padding="12,0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Command="{Binding AddPrinterCommand}" />
+
+                        <Button Content="Add Printer Model"
+                                Height="32"
+                                Background="{StaticResource GruvDarkGray}"
+                                BorderBrush="{StaticResource GruvGray}"
+                                BorderThickness="1"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource GruvFg}"
+                                CornerRadius="6"
+                                Padding="12,0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Command="{Binding AddPrinterModelCommand}" />
+
+                        <Button Content="Delete Printer"
+                                Height="32"
+                                Background="{StaticResource GruvRed}"
+                                BorderBrush="{StaticResource GruvDarkGray}"
+                                BorderThickness="1"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource GruvBg}"
+                                CornerRadius="6"
+                                Padding="12,0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Command="{Binding DeletePrinterCommand}" />
+                    </StackPanel>
+
+                    <!-- Left: printer list -->
+                    <Border Grid.Row="1"
+                            Grid.Column="0"
+                            Background="{StaticResource GruvDarkGray}"
+                            CornerRadius="8"
+                            Padding="12"
+                            VerticalAlignment="Top"
+                            Margin="0,8,8,0">
+                        <StackPanel>
+                            <TextBlock Text="All printers"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource GruvFg}"
+                                       FontSize="16"
+                                       Margin="0,0,0,12" />
+
+                            <ListBox ItemsSource="{Binding Printers}"
+                                     Background="Transparent"
+                                     SelectedItem="{Binding SelectedPrinter, Mode=TwoWay}">
+                                <ListBox.Styles>
+                                    <Style Selector="ListBoxItem">
+                                        <Setter Property="Padding" Value="8,6"/>
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                        <Setter Property="Margin" Value="0,2"/>
+                                    </Style>
+                                    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                                        <Setter Property="Background" Value="{StaticResource GruvGray}"/>
+                                    </Style>
+                                </ListBox.Styles>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PrinterConfigRow">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Name}" Foreground="{StaticResource GruvFg}" FontWeight="Medium"/>
+                                            <TextBlock Text="(" Opacity="0.6" Foreground="{StaticResource GruvFg}"/>
+                                            <TextBlock Text="{Binding Id}" Opacity="0.6" Foreground="{StaticResource GruvFg}"/>
+                                            <TextBlock Text=")" Opacity="0.6" Foreground="{StaticResource GruvFg}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Right: selected printer details -->
+                    <Border Grid.Row="1"
+                            Grid.Column="1"
+                            Background="{StaticResource GruvDarkGray}"
+                            CornerRadius="8"
+                            Padding="16"
+                            Margin="8,8,0,0">
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0"
+                                       Text="Printer details"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource GruvFg}"
+                                       FontSize="16"
+                                       Margin="0,0,0,16" />
+
+                            <StackPanel Grid.Row="1"
+                                        Spacing="12">
+
+                                <!-- Model (read-only) -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Model:"
+                                               Width="100"
+                                               Foreground="{StaticResource GruvLightGray}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding SelectedPrinter.ModelName}"
+                                               Foreground="{StaticResource GruvFg}"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <!-- Name -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Name:"
+                                               Width="100"
+                                               Foreground="{StaticResource GruvLightGray}"
+                                               VerticalAlignment="Center" />
+                                    <TextBox Text="{Binding SelectedPrinter.Name, Mode=TwoWay}"
+                                             Width="240" />
+                                </StackPanel>
+
+                                <!-- IP / Location -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="IP / Location:"
+                                               Width="100"
+                                               Foreground="{StaticResource GruvLightGray}"
+                                               VerticalAlignment="Center" />
+                                    <TextBox Text="{Binding SelectedPrinter.IpAddress, Mode=TwoWay}"
+                                             Width="240" />
+                                </StackPanel>
+
+                                <!-- API Key -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="API Key:"
+                                               Width="100"
+                                               Foreground="{StaticResource GruvLightGray}"
+                                               VerticalAlignment="Center" />
+                                    <TextBox Text="{Binding SelectedPrinter.ApiKey, Mode=TwoWay}"
+                                             Width="240" />
+                                </StackPanel>
+
+                                <!-- Status text -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="Status:"
+                                               Width="100"
+                                               Foreground="{StaticResource GruvLightGray}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding SelectedPrinter.StatusText}"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource GruvAqua}"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+
+                                <!-- Enabled + Autostart -->
+                                <StackPanel Orientation="Horizontal" Spacing="24"
+                                            Margin="0,8,0,0">
+                                    <CheckBox Content="Active"
+                                              Foreground="{StaticResource GruvFg}"
+                                              IsChecked="{Binding SelectedPrinter.Enabled, Mode=TwoWay}" />
+                                    <CheckBox Content="Autostart"
+                                              Foreground="{StaticResource GruvFg}"
+                                              IsChecked="{Binding SelectedPrinter.Autostart, Mode=TwoWay}" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Save buttons -->
+                            <StackPanel Grid.Row="2"
+                                        Margin="0,16,0,0"
+                                        Orientation="Horizontal"
+                                        Spacing="12"
+                                        HorizontalAlignment="Left">
+                                <Button Content="Save All"
+                                        Height="32"
+                                        Background="{StaticResource GruvGreen}"
+                                        Foreground="{StaticResource GruvBg}"
+                                        FontWeight="Bold"
+                                        CornerRadius="6"
+                                        Padding="24,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Command="{Binding SaveAllCommand}" />
+
+                                <Button Content="Save"
+                                        CornerRadius="6"
+                                        Height="32"
+                                        Background="{StaticResource GruvBlue}"
+                                        Foreground="{StaticResource GruvBg}"
+                                        FontWeight="Bold"
+                                        Padding="20,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Command="{Binding SavePrinterCommand}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- OUT-OF-OFFICE TAB -->
+            <TabItem Header="Out-of-Office" Foreground="#EBDBB2">
+                <Grid ColumnDefinitions="2*,3*"
+                      Margin="0,8,0,0">
+
+                    <!-- List of date ranges -->
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,0,0,8"
+                                    Spacing="8">
+                            <Button Content="Add Range"
+                                    Height="32"
+                                    Background="{StaticResource GruvYellow}"
+                                    BorderBrush="{StaticResource GruvDarkGray}"
+                                    BorderThickness="1"
+                                    FontWeight="Bold"
+                                    Foreground="{StaticResource GruvBg}"
+                                    CornerRadius="6"
+                                    Padding="12,0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Command="{Binding AddOutOfOfficeRuleCommand}" />
+                            <Button Content="Delete"
+                                    Height="32"
+                                    Background="{StaticResource GruvRed}"
+                                    BorderBrush="{StaticResource GruvDarkGray}"
+                                    BorderThickness="1"
+                                    FontWeight="Bold"
+                                    Foreground="{StaticResource GruvBg}"
+                                    CornerRadius="6"
+                                    Padding="12,0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Command="{Binding DeleteOutOfOfficeRuleCommand}" />
+                        </StackPanel>
+
+                        <!-- Replaces DataGrid with ListBox + StackPanel template -->
+                        <ListBox ItemsSource="{Binding OutOfOfficeRules}"
+                                 Background="Transparent"
+                                 SelectedItem="{Binding SelectedOutOfOfficeRule, Mode=TwoWay}">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="8,6"/>
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                    <Setter Property="Margin" Value="0,2"/>
+                                </Style>
+                                <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="{StaticResource GruvGray}"/>
+                                </Style>
+                            </ListBox.Styles>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:EmailRuleViewModel">
+                                    <Border Margin="0,2"
+                                            Padding="8"
+                                            CornerRadius="6"
+                                            Background="{StaticResource GruvDarkGray}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{Binding Label}"
+                                                       Foreground="{StaticResource GruvFg}"
+                                                       FontWeight="Bold"
+                                                       Width="140" />
+                                            <TextBlock Text="{Binding StartDate, StringFormat='{}{0:d}', TargetNullValue='Always'}"
+                                                       Foreground="{StaticResource GruvFg}"
+                                                       Width="110"
+                                                       Opacity="0.8" />
+                                            <TextBlock Text="Enabled:"
+                                                       Foreground="{StaticResource GruvLightGray}"
+                                                       Opacity="0.6" />
+                                            <TextBlock Text="{Binding IsEnabled}"
+                                                       Foreground="{StaticResource GruvFg}"
+                                                       Width="60" />
+                                            <TextBlock Text="Priority:"
+                                                       Foreground="{StaticResource GruvLightGray}"
+                                                       Opacity="0.6"
+                                                       Margin="8,0,0,0" />
+                                            <TextBlock Text="{Binding Priority}"
+                                                       Foreground="{StaticResource GruvFg}"
+                                                       Width="40" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+
+                    <!-- Details for selected date range -->
+                    <Border Grid.Column="1"
+                            Padding="16"
+                            Background="{StaticResource GruvDarkGray}"
+                            CornerRadius="8"
+                            Margin="12,0,0,0">
+                        <Grid RowDefinitions="*,Auto">
+                            <ScrollViewer Grid.Row="0">
+                                <StackPanel DataContext="{Binding SelectedOutOfOfficeRule}">
+                            <TextBlock Text="Details"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource GruvFg}"
+                                       FontSize="16"
+                                       Margin="0,0,0,16" />
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="Label:"
+                                           Width="120"
+                                           Foreground="{StaticResource GruvLightGray}"
+                                           VerticalAlignment="Center" />
+                                <TextBox Text="{Binding Label}" Width="250" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="Start Date:"
+                                           Width="120"
+                                           Foreground="{StaticResource GruvLightGray}"
+                                           VerticalAlignment="Center" />
+                                <DatePicker SelectedDate="{Binding StartDate}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="End Date:"
+                                           Width="120"
+                                           Foreground="{StaticResource GruvLightGray}"
+                                           VerticalAlignment="Center" />
+                                <DatePicker SelectedDate="{Binding EndDate}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="Enabled:"
+                                           Width="120"
+                                           Foreground="{StaticResource GruvLightGray}"
+                                           VerticalAlignment="Center" />
+                                <ToggleSwitch IsChecked="{Binding IsEnabled}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="Priority:"
+                                           Width="120"
+                                           Foreground="{StaticResource GruvLightGray}"
+                                           VerticalAlignment="Center" />
+                                <TextBox Text="{Binding Priority}" Width="60" />
+                            </StackPanel>
+
+                            <TextBlock Text="Subject:"
+                                       Foreground="{StaticResource GruvLightGray}"
+                                       Margin="0,8,0,4" />
+                            <TextBox Text="{Binding Subject}" />
+
+                            <TextBlock Text="Body:"
+                                       Foreground="{StaticResource GruvLightGray}"
+                                       Margin="0,12,0,4" />
+                            <TextBox Text="{Binding Body}"
+                                     AcceptsReturn="True"
+                                     Height="150"
+                                     TextWrapping="Wrap" />
+                                </StackPanel>
+                            </ScrollViewer>
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,16,0,0">
+                                <Button Content="Save All"
+                                        Height="32"
+                                        Background="{StaticResource GruvGreen}"
+                                        Foreground="{StaticResource GruvBg}"
+                                        FontWeight="Bold"
+                                        CornerRadius="6"
+                                        Padding="24,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Command="{Binding SaveAllCommand}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- TIME-BASED TAB -->
+            <TabItem Header="Time-Based" Foreground="#EBDBB2">
+                <Grid ColumnDefinitions="2*,3*"
+                      Margin="0,8,0,0">
+
+                    <!-- List of time rules -->
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,0,0,8"
+                                    Spacing="8">
+                            <Button Content="Add Rule"
+                                    Height="32"
+                                    Background="{StaticResource GruvYellow}"
+                                    BorderBrush="{StaticResource GruvDarkGray}"
+                                    BorderThickness="1"
+                                    FontWeight="Bold"
+                                    Foreground="{StaticResource GruvBg}"
+                                    CornerRadius="6"
+                                    Padding="12,0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Command="{Binding AddTimeRuleCommand}" />
+                            <Button Content="Delete"
+                                    Height="32"
+                                    Background="{StaticResource GruvRed}"
+                                    BorderBrush="{StaticResource GruvDarkGray}"
+                                    BorderThickness="1"
+                                    FontWeight="Bold"
+                                    Foreground="{StaticResource GruvBg}"
+                                    CornerRadius="6"
+                                    Padding="12,0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Command="{Binding DeleteTimeRuleCommand}" />
+                        </StackPanel>
+
+                        <!-- Replaces DataGrid with ListBox + StackPanel template -->
+                        <ListBox ItemsSource="{Binding TimeBasedRules}"
+                                 Background="Transparent"
+                                 SelectedItem="{Binding SelectedTimeBasedRule, Mode=TwoWay}">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="8,6"/>
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                    <Setter Property="Margin" Value="0,2"/>
+                                </Style>
+                                <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="{StaticResource GruvGray}"/>
+                                </Style>
+                            </ListBox.Styles>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:EmailRuleViewModel">
+                                    <Border Margin="0,2"
+                                            Padding="8"
+                                            CornerRadius="6"
+                                            Background="{StaticResource GruvDarkGray}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{Binding Label}"
+                                                       Foreground="{StaticResource GruvFg}"
+                                                       FontWeight="Bold"
+                                                       Width="140" />
+                                            <TextBlock Text="{Binding StartTime}"
+                                                       Foreground="{StaticResource GruvFg}"
+                                                       Width="90"
+                                                       Opacity="0.8" />
+                                            <TextBlock Text="-"
+                                                       Width="10"
+                                                       HorizontalAlignment="Center"
+                                                       Foreground="{StaticResource GruvLightGray}"
+                                                       Opacity="0.6" />
+                                            <TextBlock Text="{Binding EndTime}"
+                                                       Foreground="{StaticResource GruvFg}"
+                                                       Width="90"
+                                                       Opacity="0.8" />
+                                            <TextBlock Text="{Binding DaysOfWeek}"
+                                                       Foreground="{StaticResource GruvFg}"
+                                                       Margin="8,0,0,0"
+                                                       Opacity="0.8" />
+                                            <TextBlock Text="Priority:"
+                                                       Foreground="{StaticResource GruvLightGray}"
+                                                       Margin="8,0,0,0"
+                                                       Opacity="0.6" />
+                                            <TextBlock Text="{Binding Priority}"
+                                                       Foreground="{StaticResource GruvFg}"
+                                                       Width="40" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+
+                    <!-- Details for selected time rule -->
+                    <Border Grid.Column="1"
+                            Padding="16"
+                            Background="{StaticResource GruvDarkGray}"
+                            CornerRadius="8"
+                            Margin="12,0,0,0">
+                        <Grid RowDefinitions="*,Auto">
+                            <ScrollViewer Grid.Row="0">
+                                <StackPanel DataContext="{Binding SelectedTimeBasedRule}">
+                            <TextBlock Text="Details"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource GruvFg}"
+                                       FontSize="16"
+                                       Margin="0,0,0,16" />
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="Label:"
+                                           Width="120"
+                                           Foreground="{StaticResource GruvLightGray}"
+                                           VerticalAlignment="Center" />
+                                <TextBox Text="{Binding Label}" Width="250" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="Start Time:"
+                                           Width="120"
+                                           Foreground="{StaticResource GruvLightGray}"
+                                           VerticalAlignment="Center" />
+                                <TimePicker SelectedTime="{Binding StartTime}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="End Time:"
+                                           Width="120"
+                                           Foreground="{StaticResource GruvLightGray}"
+                                           VerticalAlignment="Center" />
+                                <TimePicker SelectedTime="{Binding EndTime}" />
+                            </StackPanel>
+
+                            <!-- Days of week selection -->
+                            <TextBlock Text="Days of Week:"
+                                       Foreground="{StaticResource GruvLightGray}"
+                                       Margin="0,8,0,4" />
+                            <UniformGrid Columns="4">
+                                <CheckBox Content="Mon" Foreground="{StaticResource GruvFg}"
+                                          IsChecked="{Binding Path=DaysOfWeek, Converter={StaticResource DayFlagConverter}, ConverterParameter=Monday}" />
+                                <CheckBox Content="Tue" Foreground="{StaticResource GruvFg}"
+                                          IsChecked="{Binding Path=DaysOfWeek, Converter={StaticResource DayFlagConverter}, ConverterParameter=Tuesday}" />
+                                <CheckBox Content="Wed" Foreground="{StaticResource GruvFg}"
+                                          IsChecked="{Binding Path=DaysOfWeek, Converter={StaticResource DayFlagConverter}, ConverterParameter=Wednesday}" />
+                                <CheckBox Content="Thu" Foreground="{StaticResource GruvFg}"
+                                          IsChecked="{Binding Path=DaysOfWeek, Converter={StaticResource DayFlagConverter}, ConverterParameter=Thursday}" />
+                                <CheckBox Content="Fri" Foreground="{StaticResource GruvFg}"
+                                          IsChecked="{Binding Path=DaysOfWeek, Converter={StaticResource DayFlagConverter}, ConverterParameter=Friday}" />
+                                <CheckBox Content="Sat" Foreground="{StaticResource GruvFg}"
+                                          IsChecked="{Binding Path=DaysOfWeek, Converter={StaticResource DayFlagConverter}, ConverterParameter=Saturday}" />
+                                <CheckBox Content="Sun" Foreground="{StaticResource GruvFg}"
+                                          IsChecked="{Binding Path=DaysOfWeek, Converter={StaticResource DayFlagConverter}, ConverterParameter=Sunday}" />
+                            </UniformGrid>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,12,0,12">
+                                <TextBlock Text="Enabled:"
+                                           Width="120"
+                                           Foreground="{StaticResource GruvLightGray}"
+                                           VerticalAlignment="Center" />
+                                <ToggleSwitch IsChecked="{Binding IsEnabled}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,12">
+                                <TextBlock Text="Priority:"
+                                           Width="120"
+                                           Foreground="{StaticResource GruvLightGray}"
+                                           VerticalAlignment="Center" />
+                                <TextBox Text="{Binding Priority}" Width="60" />
+                            </StackPanel>
+
+                            <TextBlock Text="Subject:"
+                                       Foreground="{StaticResource GruvLightGray}"
+                                       Margin="0,8,0,4" />
+                            <TextBox Text="{Binding Subject}" />
+
+                            <TextBlock Text="Body:"
+                                       Foreground="{StaticResource GruvLightGray}"
+                                       Margin="0,12,0,4" />
+                            <TextBox Text="{Binding Body}"
+                                     AcceptsReturn="True"
+                                     Height="150"
+                                     TextWrapping="Wrap" />
+                                </StackPanel>
+                            </ScrollViewer>
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,16,0,0">
+                                <Button Content="Save All"
+                                        Height="32"
+                                        Background="{StaticResource GruvGreen}"
+                                        Foreground="{StaticResource GruvBg}"
+                                        FontWeight="Bold"
+                                        CornerRadius="6"
+                                        Padding="24,0"
+                                        Command="{Binding SaveAllCommand}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</UserControl>

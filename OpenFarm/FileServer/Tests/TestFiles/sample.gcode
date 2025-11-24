@@ -1,0 +1,3 @@
+G28 ; Home all axes
+G1 X10 Y10 Z0.3 F5000.0
+G1 X20 Y20 Z0.3 F5000.0

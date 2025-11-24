@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:native_desktop_app.ViewModels"
+             x:Class="native_desktop_app.Views.PrintersView"
+             x:DataType="vm:PrintersViewModel">
+
+    <StackPanel>
+        <!-- Column Headers -->
+        <Border CornerRadius="10" Padding="10" Margin="0,0,0,5">
+            <Grid ColumnDefinitions="*, *, *, 1.5*, *, .5*">
+                <TextBlock Grid.Column="0" Text="Name" Foreground="{StaticResource GruvFg}" FontWeight="Bold" />
+                <TextBlock Grid.Column="1" Text="Model" Foreground="{StaticResource GruvFg}" FontWeight="Bold" />
+                <TextBlock Grid.Column="2" Text="IP" Foreground="{StaticResource GruvFg}" FontWeight="Bold" />
+                <TextBlock Grid.Column="3" Text="API Key" Foreground="{StaticResource GruvFg}" FontWeight="Bold" />
+                <TextBlock Grid.Column="4" Text="Enabled" Foreground="{StaticResource GruvFg}" FontWeight="Bold" />
+            </Grid>
+        </Border>
+        <!-- Job Rows -->
+        <ItemsControl ItemsSource="{Binding Rows}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="#504945"
+                            CornerRadius="10"
+                            Margin="0,5"
+                            Padding="10">
+                        <Grid ColumnDefinitions="*, *, *, 1.5*, *, .5*">
+                            <TextBlock Grid.Column="0" Text="{Binding Printer.Name}" VerticalAlignment="Center"
+                                       Foreground="{StaticResource GruvFg}" />
+                            <TextBlock Grid.Column="1" Text="{Binding ModelName}" VerticalAlignment="Center"
+                                       Foreground="{StaticResource GruvFg}" />
+                            <TextBlock Grid.Column="2" Text="{Binding Printer.IpAddress}" VerticalAlignment="Center"
+                                       Foreground="{StaticResource GruvFg}" />
+                            <TextBlock Grid.Column="3" Text="{Binding Printer.ApiKey}" VerticalAlignment="Center"
+                                       Foreground="{StaticResource GruvFg}" />
+                            <Button Grid.Column="4"
+                                    Content="{Binding Printer.Enabled}"
+                                    Background="Transparent"
+                                    Foreground="{StaticResource GruvFg}"
+                                    BorderBrush="White"
+                                    BorderThickness="2"
+                                    CornerRadius="6"
+                                    Cursor="Hand"
+                                    VerticalAlignment="Center" />
+                            <Button Grid.Column="5"
+                                    Content="Delete"
+                                    Command="{Binding $parent[ItemsControl].((vm:PrintersViewModel)DataContext).MarkPrinterDeleted}"
+                                    CommandParameter="{Binding Printer}"
+                                    Background="Transparent"
+                                    Foreground="{StaticResource GruvFg}"
+                                    BorderBrush="#fb4934"
+                                    BorderThickness="2"
+                                    CornerRadius="6"
+                                    Cursor="Hand"
+                                    VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</UserControl>

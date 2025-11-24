@@ -1,0 +1,123 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:native_desktop_app.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="native_desktop_app.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="OpenFarm"
+        Background="#282828"
+        Foreground="#EBDBB2">
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+    <Grid RowDefinitions="Auto,*">
+        <!-- Tab Control at the top -->
+        <TabControl Grid.Row="0"
+                    Background="Transparent"
+                    Padding="0"
+                    Margin="200,10"
+                    TabStripPlacement="Top"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    SelectedIndex="{Binding SelectedTabIndex}">
+            <!-- Override the default ItemsPanel with UniformGrid -->
+            <TabControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="1" />
+                </ItemsPanelTemplate>
+            </TabControl.ItemsPanel>
+            <TabControl.Styles>
+                <!-- Gruvbox dark base colors -->
+                <Style Selector="TabControl">
+                    <Setter Property="Background" Value="#282828" />
+                    <Setter Property="TabStripPlacement" Value="Top" />
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+                <!-- Normal tab styling -->
+                <Style Selector="TabItem">
+                    <Setter Property="Padding" Value="10 4" />
+                    <Setter Property="Margin" Value="0 0 4 0" />
+                    <Setter Property="FontSize" Value="12" />
+                    <Setter Property="Foreground" Value="#BDAE93" />
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    <!-- Gruvbox light foreground -->
+                    <Setter Property="Background" Value="#3C3836" />
+                    <!-- Gruvbox dark bg1 -->
+                    <Setter Property="CornerRadius" Value="20" />
+                    <Setter Property="Template">
+                        <ControlTemplate>
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="20" Margin="2">
+                                <Grid>
+                                    <ContentPresenter Name="PART_ContentPresenter"
+                                                      ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                      Content="{TemplateBinding Header}"
+                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                      Margin="{TemplateBinding Padding}" />
+                                    <Border Name="PART_SelectedPipe"
+                                            Height="2"
+                                            Background="#B8BB26"
+                                            VerticalAlignment="Bottom"
+                                            HorizontalAlignment="Center"
+                                            Width="20"
+                                            Margin="0 0 0 2"
+                                            IsVisible="False" />
+                                </Grid>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter>
+                </Style>
+                <!-- Selected tab styling -->
+                <Style Selector="TabItem:selected">
+                    <Setter Property="Foreground" Value="#FB4934" />
+                    <!-- Gruvbox bright red -->
+                    <Setter Property="Background" Value="#504945" />
+                    <!-- Gruvbox dark bg2 -->
+                </Style>
+                <!-- Selected tab bottom indicator -->
+                <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
+                    <Setter Property="IsVisible" Value="True" />
+                </Style>
+            </TabControl.Styles>
+            <TabItem Header="Home">
+                <!-- Home content? -->
+            </TabItem>
+            <TabItem Header="Print Jobs">
+                <!-- Print Jobs content will go here -->
+            </TabItem>
+            <TabItem Header="Staff Review">
+                <!-- Staff Review content will go here -->
+            </TabItem>
+            <TabItem Header="Printers">
+                <!-- Printers content will go here -->
+            </TabItem>
+            <TabItem Header="Messages">
+                <!-- Messages content will go here -->
+            </TabItem>
+            <TabItem Header="Users">
+                <!-- Users content will go here -->
+            </TabItem>
+            <TabItem Header="Stats">
+                <!-- Stats content will go here -->
+            </TabItem>
+            <TabItem Header="Config">
+                <!-- Config content will go here -->
+            </TabItem>
+            <TabItem Header="Maintenance">
+
+            </TabItem>
+        </TabControl>
+        <!-- Content area below the tabs -->
+        <ContentControl Grid.Row="1"
+                        Content="{Binding CurrentViewModel}"
+                        Margin="10" />
+    </Grid>
+</Window>

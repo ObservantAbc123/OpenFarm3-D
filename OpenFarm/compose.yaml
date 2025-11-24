@@ -1,0 +1,329 @@
+include:
+  - path: OctoprintTestingService/docker-compose.instances.yaml
+    env_file: .env
+
+services:
+  postgres:
+    build:
+      context: ./postgres
+    container_name: postgres-container
+    logging:
+      driver: none
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - internal-network
+
+  rabbitmq:
+    build:
+      context: ./rabbitMQ
+    container_name: rabbitmq
+    logging:
+      driver: none
+    environment:
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - internal-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio-server
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio-data:/data
+      - ./minio/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - internal-network
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c " /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; /usr/bin/mc mb myminio/gcode-files || true; /usr/bin/mc mb myminio/images || true; echo 'Buckets created. Configure access policies as needed.'; exit 0;"
+    networks:
+      - internal-network
+
+  file-processor:
+    build:
+      context: .
+      dockerfile: ./FileServer/Dockerfile
+    container_name: file-processor-service
+    depends_on:
+      minio:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      GOOGLE_SERVICE_ACCOUNT_CRED_FILE: ${GOOGLE_SERVICE_ACCOUNT_CRED_FILE}
+      ASPNETCORE_URLS: http://+:80
+      MINIO_USE_SSL: ${MINIO_USE_SSL}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB}
+      DOWNLOAD_TIMEOUT_SECONDS: ${DOWNLOAD_TIMEOUT_SECONDS}
+      MAX_CONCURRENT_DOWNLOADS: ${MAX_CONCURRENT_DOWNLOADS}
+      AllowedOrigins__0: ${ALLOWEDORIGINS__0}
+      AllowedOrigins__1: ${ALLOWEDORIGINS__1}
+      AllowedOrigins__2: ${ALLOWEDORIGINS__2}
+    ports:
+      - "5001:80"
+    networks:
+      - internal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  printer-management-service:
+    image: printer-management-service
+    container_name: printer-management-service
+    networks:
+      - internal-network
+    build:
+      context: .
+      dockerfile: PrinterManagementService/Dockerfile
+    environment:
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_CONNECTION_STRING: ${DATABASE_CONNECTION_STRING}
+      FILE_SERVER_BASE_URL: ${FILE_SERVER_BASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      file-processor:
+        condition: service_started
+
+  google-form-listener:
+    image: google-form-listener
+    build:
+      context: .
+      dockerfile: google-form-listener/Dockerfile
+    environment:
+      GOOGLE_FORM_ID: ${GOOGLE_FORM_ID}
+      GOOGLE_SERVICE_ACCOUNT_CRED_FILE: ${GOOGLE_SERVICE_ACCOUNT_CRED_FILE}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      DATABASE_CONNECTION_STRING: ${DATABASE_CONNECTION_STRING}
+    networks:
+      - internal-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  print-submission-processing-service:
+    image: print-submission-processing-service
+    build:
+      context: .
+      dockerfile: print-submission-processing-service/Dockerfile
+    environment:
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - DATABASE_CONNECTION_STRING=${DATABASE_CONNECTION_STRING}
+      - FILE_SERVER_BASE_URL=${FILE_SERVER_BASE_URL}
+    networks:
+      - internal-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  email-service:
+    image: email-service
+    build:
+      context: .
+      dockerfile: EmailService/Dockerfile
+    environment:
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      DATABASE_CONNECTION_STRING: ${DATABASE_CONNECTION_STRING}
+      GMAIL_EMAIL: ${GMAIL_EMAIL}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
+      SENDER_NAME: ${SENDER_NAME}
+      SMTP_SERVER: ${SMTP_SERVER}
+      IMAP_SERVER: ${IMAP_SERVER}
+      IMAP_PORT: ${IMAP_PORT}
+      SMTP_PORT: ${SMTP_PORT}
+      COMPANY_LOGO_URL: ${COMPANY_LOGO_URL}
+    networks:
+      - internal-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      file-processor:
+        condition: service_healthy
+
+  discord-service:
+    image: discord-service
+    build:
+      context: .
+      dockerfile: DiscordService/Dockerfile
+    environment:
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      DATABASE_CONNECTION_STRING: ${DATABASE_CONNECTION_STRING}
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      DISCORD_CHANNEL: ${DISCORD_CHANNEL}
+    networks:
+      - internal-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  gcode-oracle:
+    image: gcode-oracle
+    build:
+      context: .
+      dockerfile: GcodeOracle/Dockerfile
+    container_name: gcode-oracle
+    environment:
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - DATABASE_CONNECTION_STRING=${DATABASE_CONNECTION_STRING}
+      - FILE_SERVER_BASE_URL=${FILE_SERVER_BASE_URL}
+    networks:
+      - internal-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+
+  payment-processing-service:
+    image: payment-processing-service
+    container_name: payment-processing-service
+    build:
+      context: .
+      dockerfile: PaymentProcessingService/DockerFile
+      args:
+        ASPNETCORE_CERT_PASSWORD: ${ASPNETCORE_CERT_PASSWORD}
+    environment:
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      DATABASE_CONNECTION_STRING: ${DATABASE_CONNECTION_STRING}
+      PAYMENT_API_KEY: ${PAYMENT_API_KEY}
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:443
+      ASPNETCORE_Kestrel__Certificates__Default__Password: ${ASPNETCORE_CERT_PASSWORD}
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/cert/aspnetapp.pfx
+    ports:
+      - "5002:443"
+    networks:
+      - internal-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - internal-network
+    restart: unless-stopped
+
+  llm-agent-service:
+    image: llm-agent-service
+    build:
+      context: .
+      dockerfile: LlmAgentService/Dockerfile
+    environment:
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      DATABASE_CONNECTION_STRING: ${DATABASE_CONNECTION_STRING}
+      OLLAMA_BASE_URL: http://ollama:11434
+      LLM_MODEL: llama3
+    volumes:
+      - ./LlmAgentService/knowledge:/app/knowledge
+    networks:
+      - internal-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+
+networks:
+  internal-network:
+    driver: bridge
+
+volumes:
+  minio-data:
+  postgres_data:
+  ollama_data:

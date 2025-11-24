@@ -1,0 +1,6 @@
+moderngl[headless]
+pillow
+numpy
+pika
+requests
+psycopg2-binary

@@ -1,0 +1,140 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:native_desktop_app.ViewModels"
+             x:Class="native_desktop_app.Views.MaintenanceView"
+             x:DataType="vm:MaintenanceViewModel">
+    
+    <StackPanel Orientation="Vertical" Spacing="5">
+        <!-- Maintenance Column Headers -->
+        <Border CornerRadius="10" Padding="10">
+            <Grid ColumnDefinitions="*, *, *, *, *">
+                <TextBlock Grid.Column="0" Text="Associated Printer" Foreground="{StaticResource GruvFg}" FontWeight="Bold" />
+                <TextBlock Grid.Column="1" Text="Time Since Last Service" Foreground="{StaticResource GruvFg}" FontWeight="Bold" />
+                <TextBlock Grid.Column="2" Text="Time Until Next Service" Foreground="{StaticResource GruvFg}" FontWeight="Bold" />
+                <TextBlock Grid.Column="3" Text="Uptime" Foreground="{StaticResource GruvFg}" FontWeight="Bold" />
+                <TextBlock Grid.Column="4" Text="Details" Foreground="{StaticResource GruvFg}" FontWeight="Bold" />
+            </Grid>
+        </Border>
+
+        <ItemsControl ItemsSource="{Binding Rows}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+
+                        <Border Background="#504945"
+                                CornerRadius="10"
+                                Margin="0,5,0,0"
+                                Padding="10"
+                                ZIndex="2">
+                            <Grid ColumnDefinitions="*, *, *, *, *">
+                                <TextBlock Grid.Column="0" Text="{Binding AssociatedPrinterName}"
+                                           VerticalAlignment="Center" Foreground="{StaticResource GruvFg}" />
+                                <TextBlock Grid.Column="1" Text="{Binding TimeSinceLastService}"
+                                           VerticalAlignment="Center" Foreground="{StaticResource GruvFg}" />
+                                <TextBlock Grid.Column="2" Text="{Binding TimeTillNextService}"
+                                           VerticalAlignment="Center" Foreground="{StaticResource GruvFg}" />
+                                <TextBlock Grid.Column="3" Text="{Binding Uptime}" VerticalAlignment="Center"
+                                           Foreground="{StaticResource GruvFg}" />
+
+                                <Button Grid.Column="4"
+                                        Content="View Report"
+                                        Command="{Binding ToggleExpandCommand}"
+                                        Foreground="#1d2021"
+                                        Background="{Binding DetailsColoring}"
+                                        BorderBrush="#fb9b34"
+                                        BorderThickness="2"
+                                        CornerRadius="6"
+                                        Cursor="Hand"
+                                        VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <Border IsVisible="{Binding IsExpanded}"
+                                Background="#3c3836"
+                                CornerRadius="0,0,10,10"
+                                Margin="10,-5,10,5"
+                                Padding="20,20,20,10"
+                                ZIndex="1">
+                            <Grid ColumnDefinitions="*, *, *, *, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto,*">
+
+                                <!-- print reporting -->
+                                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="Print Metrics"
+                                           FontWeight="Bold"
+                                           Foreground="#fb9b34"
+                                           Margin="0,15,0,10"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Foreground="LightGray">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{} Prints Completed Since {0}: {1} Prints">
+                                            <Binding Path="LastServicedDate" />
+                                            <Binding Path="CountPrintSuccesses" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Foreground="LightGray">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{} Prints Failed Since {0}: {1} Prints">
+                                            <Binding Path="LastServicedDate" />
+                                            <Binding Path="CountPrintFailures" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+
+                                <!-- thermal reporting -->
+                                <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                                           Text="Thermal Metrics"
+                                           FontWeight="Bold"
+                                           Foreground="#fb9b34"
+                                           Margin="0,15,0,10"/>
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding TempF, StringFormat='Current Head Temperature (°F): {0}'}" Foreground="LightGray"/>
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="{Binding TempC, StringFormat='Current Head Temperature (°C): {0}'}" Foreground="LightGray"/>
+
+                                <!-- extrusion reporting -->
+                                <TextBlock Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2"
+                                           Text="Extrusion Metrics"
+                                           FontWeight="Bold"
+                                           Foreground="#fb9b34"
+                                           Margin="0,15,0,10"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Foreground="LightGray">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{} Cubic Meters Extruded Since {0}: {1}">
+                                            <Binding Path="LastServicedDate" />
+                                            <Binding Path="Extrusion" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock Grid.Row="2" Grid.Column="2" Foreground="LightGray">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{} Meters Traveled by Extruder Since {0}: {1}">
+                                            <Binding Path="LastServicedDate" />
+                                            <Binding Path="Travel" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+
+                                <!-- error reporting -->
+                                <TextBlock Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2"
+                                           Text="Error Metrics"
+                                           FontWeight="Bold"
+                                           Foreground="#fb9b34"
+                                           Margin="0,15,0,10"/>
+                                <TextBlock Grid.Row="4" Grid.Column="2" Foreground="LightGray">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{} Count of Errors Since {0}: {1}">
+                                            <Binding Path="LastServicedDate" />
+                                            <Binding Path="ErrorCount" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+
+                            </Grid>
+                        </Border>
+
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+    </StackPanel>
+</UserControl>

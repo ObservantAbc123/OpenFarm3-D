@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>latest</LangVersion>
+        <UserSecretsId>dotnet-print_submission_processing_service-31728291-2c7d-4cae-966a-f7fec244b417</UserSecretsId>
+        <RootNamespace>print_submission_processing_service</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DatabaseAccess\DatabaseAccess.csproj"/>
+        <ProjectReference Include="..\FileServer\FileServerClient\FileServerClient.csproj"/>
+        <ProjectReference Include="..\RabbitMQHelper\RabbitMQHelper.csproj"/>
+    </ItemGroup>
+</Project>

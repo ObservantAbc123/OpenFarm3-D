@@ -1,0 +1,230 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:native_desktop_app.ViewModels"
+             x:Class="native_desktop_app.Views.StaffReviewView"
+             x:DataType="vm:StaffReviewViewModel">
+
+    <Grid ColumnDefinitions="2*,3*" Margin="10">
+        <!-- Left: Jobs List -->
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Column Headers -->
+            <Grid ColumnDefinitions="2*, 3*, 2*" Margin="0,0,10,5" Grid.Row="0">
+                <TextBlock Grid.Column="0" Text="PR" FontWeight="Bold" Foreground="{StaticResource GruvFg}" Margin="10,0"
+                           HorizontalAlignment="Left" />
+                <TextBlock Grid.Column="1" Text="User" FontWeight="Bold" Foreground="{StaticResource GruvFg}" Margin="10,0"
+                           HorizontalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="# of Copies" FontWeight="Bold" Foreground="{StaticResource GruvFg}" Margin="10,0"
+                           HorizontalAlignment="Right" />
+            </Grid>
+
+            <!-- Data Rows (ListBox with selection highlighting) -->
+            <ListBox Grid.Row="1"
+                     ItemsSource="{Binding NeedToBeReviewedJobs}"
+                     SelectedItem="{Binding SelectedJob}"
+                     Background="Transparent"
+                     SelectionMode="Single">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border x:Name="RowRoot"
+                                Background="#504945"
+                                CornerRadius="8"
+                                Margin="0,5"
+                                Padding="8">
+                            <Grid ColumnDefinitions="2*, 3*, 2*" ColumnSpacing="10">
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding Id, StringFormat=PR-{0}}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Left"
+                                           Foreground="{StaticResource GruvFg}" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding User.Name}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{StaticResource GruvFg}" />
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding NumCopies}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{StaticResource GruvFg}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+
+                <!-- Make container & theme backgrounds transparent -->
+                <ListBox.Styles>
+                    <Style Selector="ListBox ScrollViewer">
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0" />
+                    </Style>
+                    <Style Selector="ListBoxItem:selected">
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                    <Style Selector="ListBoxItem:pointerover">
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                    <Style Selector="ListBoxItem /template/ ContentPresenter">
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+
+                    <!-- Actual row highlight -->
+                    <Style Selector="ListBoxItem:selected /template/ ContentPresenter Border#RowRoot">
+                        <Setter Property="Background" Value="#665c54" />   <!-- highlight -->
+                        <Setter Property="BorderBrush" Value="#ebdbb2" />  <!-- subtle outline -->
+                        <Setter Property="BorderThickness" Value="2" />
+                    </Style>
+                </ListBox.Styles>
+            </ListBox>
+
+
+        </Grid>
+
+        <!-- Right: G-code Preview -->
+        <Border Grid.Column="1" Background="#504945" CornerRadius="10" Padding="10" Margin="10,0,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Title -->
+                <TextBlock Grid.Row="0"
+                           Text="G-code Preview"
+                           Foreground="LightGray"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Left" />
+
+                <!-- Name + PR -->
+                <TextBlock Grid.Row="1"
+                           Foreground="WhiteSmoke"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Left">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} (PR-{1})">
+                            <Binding Path="SelectedJob.User.Name" />
+                            <Binding Path="SelectedJob.Id" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+
+                <!-- Buttons row -->
+                <!-- Grid columns: [Approve][NotApprove][spacer][OpenSlicer] -->
+                <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="8" Margin="0,6,0,8">
+                    <Button Grid.Column="0"
+                            Height="25"
+                            Content="✓ Approve"
+                            Command="{Binding MarkOperatorApprovedCommand}"
+                            CommandParameter="{Binding SelectedJob}"
+                            Background="#b8bb26"
+                            BorderBrush="#d5dd72"
+                            BorderThickness="1.5"
+                            FontWeight="SemiBold"
+                            Foreground="{StaticResource GruvFg}"
+                            CornerRadius="10"
+                            Padding="10,2"
+                            IsEnabled="{Binding SelectedJob, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+                    <Button Grid.Column="1"
+                            Height="25"
+                            Content="✗ Not Approved"
+                            Command="{Binding MarkOperatorNotApprovedCommand}"
+                            CommandParameter="{Binding SelectedJob}"
+                            Background="#fb4934"
+                            BorderBrush="#fb7b67"
+                            BorderThickness="1.5"
+                            FontWeight="SemiBold"
+                            Foreground="{StaticResource GruvFg}"
+                            CornerRadius="10"
+                            Padding="10,2"
+                            IsEnabled="{Binding SelectedJob, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+                    <!-- spacer is Grid.Column="2" (the * column) -->
+
+                    <Button Grid.Column="3"
+                            Height="25"
+                            Content="Open Slicer"
+                            Command="{Binding DownloadGcodeCommand}"
+                            Background="#928374"
+                            BorderBrush="#a89984"
+                            BorderThickness="1.5"
+                            FontWeight="SemiBold"
+                            Foreground="{StaticResource GruvFg}"
+                            CornerRadius="10"
+                            Padding="10,2"
+                            IsEnabled="{Binding SelectedJob, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                </Grid>
+
+                <!-- Thumbnail with border and navigation -->
+                <Grid Grid.Row="3" Margin="0,5,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Image counter and navigation controls -->
+                    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" Margin="0,0,0,8">
+                        <Button Grid.Column="0"
+                                Content="◀ Previous"
+                                Command="{Binding PreviousImageCommand}"
+                                Background="#928374"
+                                BorderBrush="#a89984"
+                                BorderThickness="1.5"
+                                FontWeight="SemiBold"
+                                Foreground="{StaticResource GruvFg}"
+                                CornerRadius="8"
+                                Padding="10,4"
+                                IsEnabled="{Binding CanNavigateToPrevious}" />
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding ImageCounterText}"
+                                   Foreground="LightGray"
+                                   FontSize="14"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+
+                        <Button Grid.Column="2"
+                                Content="Next ▶"
+                                Command="{Binding NextImageCommand}"
+                                Background="#928374"
+                                BorderBrush="#a89984"
+                                BorderThickness="1.5"
+                                FontWeight="SemiBold"
+                                Foreground="{StaticResource GruvFg}"
+                                CornerRadius="8"
+                                Padding="10,4"
+                                IsEnabled="{Binding CanNavigateToNext}" />
+                    </Grid>
+
+                    <!-- Thumbnail image -->
+                    <Border Grid.Row="1"
+                            BorderBrush="Black"
+                            BorderThickness="2"
+                            CornerRadius="8"
+                            Padding="5"
+                            Background="#3c3836">
+                        <Image Source="{Binding ThumbnailImage}"
+                               Stretch="Uniform"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                    </Border>
+                </Grid>
+
+            </Grid>
+        </Border>
+
+    </Grid>
+</UserControl>

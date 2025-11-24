@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>latest</LangVersion>
+        <UserSecretsId>dotnet-google_form_listener-1f523e03-97a2-4e94-8da5-034456e48632</UserSecretsId>
+        <RootNamespace>google_form_listener</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3703"/>
+        <PackageReference Include="Google.Apis.Forms.v1" Version="1.69.0.3715"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DatabaseAccess\DatabaseAccess.csproj"/>
+        <ProjectReference Include="..\RabbitMQHelper\RabbitMQHelper.csproj"/>
+    </ItemGroup>
+</Project>

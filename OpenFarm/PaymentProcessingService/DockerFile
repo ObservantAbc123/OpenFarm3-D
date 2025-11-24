@@ -1,0 +1,47 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+
+# Copy project files for all dependencies
+COPY ["PaymentProcessingService/PaymentProcessingService.csproj", "PaymentProcessingService/"]
+COPY ["DatabaseAccess/DatabaseAccess.csproj", "DatabaseAccess/"]
+COPY ["RabbitMQHelper/RabbitMQHelper.csproj", "RabbitMQHelper/"]
+
+# Restore all dependencies
+RUN dotnet restore "PaymentProcessingService/PaymentProcessingService.csproj"
+
+# Copy all source code
+COPY . .
+WORKDIR "/src/PaymentProcessingService"
+RUN dotnet build "./PaymentProcessingService.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./PaymentProcessingService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false --no-restore
+
+# Generate certificate in SDK stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS cert-generator
+ARG ASPNETCORE_CERT_PASSWORD
+RUN if [ -z "$ASPNETCORE_CERT_PASSWORD" ]; then \
+        echo "ERROR: ASPNETCORE_CERT_PASSWORD build arg is required" && exit 1; \
+    fi && \
+    mkdir -p /app/cert && \
+    apt-get update && apt-get install -y openssl && \
+    openssl req -x509 -newkey rsa:4096 -keyout /app/cert/key.pem -out /app/cert/cert.pem -days 365 -nodes \
+        -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost" \
+        -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:0.0.0.0" && \
+    openssl pkcs12 -export -out /app/cert/aspnetapp.pfx -inkey /app/cert/key.pem -in /app/cert/cert.pem -password pass:$ASPNETCORE_CERT_PASSWORD
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+COPY --from=cert-generator /app/cert /app/cert
+
+# Install EF Core runtime if not included
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["dotnet", "PaymentProcessingService.dll"]

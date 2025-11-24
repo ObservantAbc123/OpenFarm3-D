@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>latest</LangVersion>
+        <UserSecretsId>dotnet-EmailService-408f8259-a1f3-4e29-85ad-fdaaff08a06b</UserSecretsId>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4"/>
+        <PackageReference Include="MailKit" Version="4.4.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Templates\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="Templates\**\*">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DatabaseAccess\DatabaseAccess.csproj" />
+        <ProjectReference Include="..\RabbitMQHelper\RabbitMQHelper.csproj" />
+    </ItemGroup>
+</Project>

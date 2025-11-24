@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>latest</LangVersion>
+        <UserSecretsId>dotnet-PrintManagement-ecb28574-ef06-4212-ad74-23423fb2f1a9</UserSecretsId>
+        <RootNamespace>PrintManagement</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="..\..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\DatabaseAccess\DatabaseAccess.csproj"/>
+        <ProjectReference Include="..\EmailService\EmailService.csproj"/>
+        <ProjectReference Include="..\FileServer\FileProcessor\FileProcessor.csproj"/>
+        <ProjectReference Include="..\FileServer\FileServerClient\FileServerClient.csproj"/>
+        <ProjectReference Include="..\OctoprintHelper\OctoprintHelper.csproj"/>
+        <ProjectReference Include="..\RabbitMQHelper\RabbitMQHelper.csproj"/>
+    </ItemGroup>
+</Project>

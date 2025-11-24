@@ -1,0 +1,662 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:native_desktop_app.ViewModels"
+             xmlns:conv="using:native_desktop_app.Converters"
+             xmlns:global="clr-namespace:"
+             x:Class="native_desktop_app.Views.PrintJobsView"
+             x:DataType="vm:PrintJobsViewModel">
+
+
+    <!-- Resources -->
+    <UserControl.Resources>
+        <conv:JobStatusEqualsConverter x:Key="StatusIs" />
+        <conv:QueueClassConverter x:Key="IsQueue" />
+        <conv:AwaitingPaymentClassConverter x:Key="IsAwaiting" />
+        <conv:ShowPaidButtonConverter x:Key="ShowPaidButton" />
+        <conv:BooleanToChevronConverter x:Key="Chevron" />
+        <global:DisplayStatusConverter x:Key="DisplayStatus" />
+    </UserControl.Resources>
+
+    <Grid ColumnDefinitions="250,*" Margin="10">
+        <!-- === Left Filters Panel === -->
+        <Border Grid.Column="0" Background="#3C3836" CornerRadius="10" Padding="15" Margin="0,0,10,0">
+            <StackPanel Spacing="9">
+                <TextBlock Text="Filters"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Foreground="#EBDBB2"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,10" />
+
+                <!-- Print Status -->
+                <TextBlock Text="Print Status" FontSize="14" Foreground="#EBDBB2" FontWeight="Bold" />
+                <StackPanel>
+
+                    <!-- Finished Status -->
+                    <StackPanel>
+                        <CheckBox Content="Finished" IsChecked="{Binding ShowFinished}">
+                            <CheckBox.Styles>
+                                <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#8EC07C" />
+                                    <Setter Property="BorderThickness" Value="2" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover:unchecked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#8EC07C" />
+                                    <Setter Property="Background" Value="#808EC07C" />
+                                </Style>
+                                <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#8EC07C" />
+                                    <Setter Property="Background" Value="#8EC07C" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover:checked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#8EC07C" />
+                                    <Setter Property="Background" Value="#808EC07C" />
+                                </Style>
+                                <Style Selector="CheckBox /template/ ContentPresenter">
+                                    <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover /template/ ContentPresenter">
+                                    <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                </Style>
+                            </CheckBox.Styles>
+                        </CheckBox>
+                    </StackPanel>
+
+                    <!-- Printing Status -->
+                    <StackPanel>
+                        <CheckBox Content="Printing" IsChecked="{Binding ShowPrinting}">
+                            <CheckBox.Styles>
+                                <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#458588" />
+                                    <Setter Property="BorderThickness" Value="2" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover:unchecked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#458588" />
+                                    <Setter Property="Background" Value="#80458588" />
+                                </Style>
+                                <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#458588" />
+                                    <Setter Property="Background" Value="#458588" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover:checked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#458588" />
+                                    <Setter Property="Background" Value="#80458588" />
+                                </Style>
+                                <Style Selector="CheckBox /template/ ContentPresenter">
+                                    <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover /template/ ContentPresenter">
+                                    <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                </Style>
+                            </CheckBox.Styles>
+                        </CheckBox>
+
+                        <!-- Queue Status -->
+                        <StackPanel>
+                            <CheckBox Content="Queue" IsChecked="{Binding ShowQueue}">
+                                <CheckBox.Styles>
+                                    <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#83A598" />
+                                        <Setter Property="BorderThickness" Value="2" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover:unchecked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#83A598" />
+                                        <Setter Property="Background" Value="#8083A598" />
+                                    </Style>
+                                    <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#83A598" />
+                                        <Setter Property="Background" Value="#83A598" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover:checked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#83A598" />
+                                        <Setter Property="Background" Value="#8083A598" />
+                                    </Style>
+                                    <Style Selector="CheckBox /template/ ContentPresenter">
+                                        <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover /template/ ContentPresenter">
+                                        <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                    </Style>
+                                </CheckBox.Styles>
+                            </CheckBox>
+                        </StackPanel>
+
+                        <!-- Awaiting Payment Status -->
+                        <CheckBox Content="Awaiting Payment" IsChecked="{Binding ShowAwaitingPayment}">
+                            <CheckBox.Styles>
+                                <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#D3869B" />
+                                    <Setter Property="BorderThickness" Value="2" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover:unchecked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#D3869B" />
+                                    <Setter Property="Background" Value="#80D3869B" />
+                                </Style>
+                                <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#D3869B" />
+                                    <Setter Property="Background" Value="#D3869B" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover:checked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#D3869B" />
+                                    <Setter Property="Background" Value="#80D3869B" />
+                                </Style>
+                                <Style Selector="CheckBox /template/ ContentPresenter">
+                                    <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover /template/ ContentPresenter">
+                                    <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                </Style>
+                            </CheckBox.Styles>
+                        </CheckBox>
+
+                        <!-- Cancelled Status -->
+                        <CheckBox Content="Cancelled" IsChecked="{Binding ShowCancelled}">
+                            <CheckBox.Styles>
+                                <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#FE8019" />
+                                    <Setter Property="BorderThickness" Value="2" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover:unchecked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#FE8019" />
+                                    <Setter Property="Background" Value="#80FE8019" />
+                                </Style>
+                                <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#FE8019" />
+                                    <Setter Property="Background" Value="#FE8019" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover:checked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#FE8019" />
+                                    <Setter Property="Background" Value="#80FE8019" />
+                                </Style>
+                                <Style Selector="CheckBox /template/ ContentPresenter">
+                                    <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover /template/ ContentPresenter">
+                                    <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                </Style>
+                            </CheckBox.Styles>
+                        </CheckBox>
+
+                        <!-- Rejected Status -->
+                        <CheckBox Content="Rejected" IsChecked="{Binding ShowRejected}">
+                            <CheckBox.Styles>
+                                <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#FB4934" />
+                                    <Setter Property="BorderThickness" Value="2" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover:unchecked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#FB4934" />
+                                    <Setter Property="Background" Value="#80FB4934" />
+                                </Style>
+                                <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#FB4934" />
+                                    <Setter Property="Background" Value="#FB4934" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover:checked /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#FB4934" />
+                                    <Setter Property="Background" Value="#80FB4934" />
+                                </Style>
+                                <Style Selector="CheckBox /template/ ContentPresenter">
+                                    <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                </Style>
+                                <Style Selector="CheckBox:pointerover /template/ ContentPresenter">
+                                    <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                </Style>
+                            </CheckBox.Styles>
+                        </CheckBox>
+                    </StackPanel>
+
+                    <!-- Printer Type -->
+                    <TextBlock Text="Printer Type" FontSize="14" FontWeight="Bold" Foreground="#EBDBB2"
+                               Margin="0,10,0,0" />
+                    <StackPanel>
+                        <StackPanel>
+                            <CheckBox Content="Prusa i3 MK3S+" IsChecked="{Binding ShowPrusai3MK3S}">
+                                <CheckBox.Styles>
+                                    <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="BorderThickness" Value="2" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover:unchecked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#807C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#7C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover:checked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#807C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox /template/ ContentPresenter">
+                                        <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover /template/ ContentPresenter">
+                                        <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                    </Style>
+                                </CheckBox.Styles>
+                            </CheckBox>
+                        </StackPanel>
+                        <StackPanel>
+                            <CheckBox Content="Gigabot" IsChecked="{Binding ShowGigabot}">
+                                <CheckBox.Styles>
+                                    <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="BorderThickness" Value="2" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover:unchecked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#807C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#7C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover:checked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#807C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox /template/ ContentPresenter">
+                                        <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover /template/ ContentPresenter">
+                                        <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                    </Style>
+                                </CheckBox.Styles>
+                            </CheckBox>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Auto Start -->
+                    <TextBlock Text="Auto Start" FontSize="14" Foreground="#EBDBB2" FontWeight="Bold" Margin="0,10,0,0" />
+                    <StackPanel>
+                        <StackPanel>
+                            <CheckBox Content="Auto Start On" IsChecked="{Binding ShowAutoStartEnabled}">
+                                <CheckBox.Styles>
+                                    <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="BorderThickness" Value="2" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover:unchecked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#807C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#7C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover:checked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#807C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox /template/ ContentPresenter">
+                                        <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover /template/ ContentPresenter">
+                                        <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                    </Style>
+                                </CheckBox.Styles>
+                            </CheckBox>
+                        </StackPanel>
+                        <StackPanel>
+                            <CheckBox Content="Auto Start Off" IsChecked="{Binding ShowAutoStartDisabled}">
+                                <CheckBox.Styles>
+                                    <Style Selector="CheckBox:unchecked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="BorderThickness" Value="2" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover:unchecked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#807C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#7C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover:checked /template/ Border#NormalRectangle">
+                                        <Setter Property="BorderBrush" Value="#7C6F64" />
+                                        <Setter Property="Background" Value="#807C6F64" />
+                                    </Style>
+                                    <Style Selector="CheckBox /template/ ContentPresenter">
+                                        <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                    </Style>
+                                    <Style Selector="CheckBox:pointerover /template/ ContentPresenter">
+                                        <Setter Property="TextBlock.Foreground" Value="#EBDBB2" />
+                                    </Style>
+                                </CheckBox.Styles>
+                            </CheckBox>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Submitted Between -->
+                    <TextBlock Text="Submitted Between" FontSize="14" Foreground="#EBDBB2" FontWeight="Bold"
+                               Margin="0,10,0,0" />
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Start Date:" VerticalAlignment="Center"
+                                       Foreground="#EBDBB2"
+                                       Margin="0,0,5,0" />
+                            <DatePicker Grid.Column="1" SelectedDate="{Binding SubmittedStartDate}"
+                                        HorizontalAlignment="Stretch" />
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="End Date:" VerticalAlignment="Center" Foreground="#EBDBB2"
+                                       Margin="0,0,5,0" />
+                            <DatePicker Grid.Column="1" SelectedDate="{Binding SubmittedEndDate}"
+                                        HorizontalAlignment="Stretch" />
+                        </Grid>
+                    </StackPanel>
+
+                    <TextBlock Text="Remaining Time" FontSize="14" Foreground="#EBDBB2" FontWeight="Bold"
+                               Margin="0,10,0,0" />
+                    <Slider Minimum="0" Maximum="40" TickFrequency="5" IsSnapToTickEnabled="True" />
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,0">
+                        <Button Content="Clear All"
+                                Command="{Binding ClearFiltersCommand}"
+                                Background="#3c3836"
+                                Foreground="#EBDBB2"
+                                FontWeight="Bold"
+                                HorizontalAlignment="Center"
+                                Width="100" />
+                        <Button Content="Apply All"
+                                Command="{Binding ApplyAllFiltersCommand}"
+                                Background="#3c3836"
+                                Foreground="#EBDBB2"
+                                FontWeight="Bold"
+                                HorizontalAlignment="Center"
+                                Width="100" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- === Right Jobs List === -->
+        <Grid Grid.Column="1"
+              RowDefinitions="Auto,*">
+
+            <!-- Header row -->
+            <Grid Grid.Row="0"
+                  ColumnDefinitions="Auto,*,Auto,Auto"
+                  Margin="0,0,0,10">
+                <TextBlock Grid.Column="0" Text="Search Result:" VerticalAlignment="Center"
+                           FontSize="14" Foreground="{StaticResource GruvFg}" Margin="0,0,5,0" />
+                <TextBlock Grid.Column="1" Text="{Binding JobsCountText}" VerticalAlignment="Center"
+                           Foreground="LightGray" FontSize="12" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5"
+                            HorizontalAlignment="Right">
+                    <TextBlock Text="Sort by" VerticalAlignment="Center" Foreground="{StaticResource GruvFg}" />
+                    <ComboBox Width="120" SelectedIndex="{Binding SelectedSortOption, Mode=TwoWay}">
+                        <ComboBoxItem Content="Print Time" />
+                        <ComboBoxItem Content="Remaining Time" />
+                        <ComboBoxItem Content="Submitted" />
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="5"
+                            HorizontalAlignment="Right">
+                    <ComboBox Width="120" SelectedIndex="{Binding SelectedSearchField, Mode=TwoWay}">
+                        <ComboBoxItem Content="All" />
+                        <ComboBoxItem Content="PR#" />
+                        <ComboBoxItem Content="User" />
+                        <ComboBoxItem Content="Printer Model" />
+                    </ComboBox>
+                    <TextBox Width="120" Watermark="Search..." Text="{Binding SearchText, Mode=TwoWay}" />
+                </StackPanel>
+            </Grid>
+
+
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Column Headers (8 columns; includes Paid Status) -->
+                    <Border CornerRadius="10" Padding="10" Margin="0,0,0,5">
+                        <Grid ColumnDefinitions="*,*,*,*,*,*,1.85*,140">
+                            <TextBlock Grid.Column="0" Text="PR #" Foreground="{StaticResource GruvFg}" FontWeight="Bold"
+                                       HorizontalAlignment="Left" />
+                            <TextBlock Grid.Column="1" Text="Status" Foreground="{StaticResource GruvFg}" FontWeight="Bold"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="2" Text="# of Copies" Foreground="{StaticResource GruvFg}" FontWeight="Bold"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="3" Text="Printer Model" Foreground="{StaticResource GruvFg}" FontWeight="Bold"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="4" Text="Autostart" Foreground="{StaticResource GruvFg}" FontWeight="Bold"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="5" Text="Print Time" Foreground="{StaticResource GruvFg}" FontWeight="Bold"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="6" Text="Submitted At" Foreground="{StaticResource GruvFg}" FontWeight="Bold"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="7" Text="Paid Status" Foreground="{StaticResource GruvFg}" FontWeight="Bold"
+                                       HorizontalAlignment="Right" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Job Rows -->
+                    <ItemsControl ItemsSource="{Binding FilteredJobs}">
+                        <!-- Row color styles by class -->
+                        <ItemsControl.Styles>
+                            <Style Selector="Border.row">
+                                <Setter Property="Background" Value="#504945" />
+                            </Style>
+
+                            <!-- Status classes -->
+                            <Style Selector="Border.row.is-queue">
+                                <Setter Property="Background" Value="#83A598" />
+                            </Style>
+                            <Style Selector="Border.row.is-awaitingpayment">
+                                <Setter Property="Background" Value="#D3869B" />
+                            </Style>
+                            <Style Selector="Border.row.is-completed">
+                                <Setter Property="Background" Value="#8EC07C" />
+                            </Style>
+                            <Style Selector="Border.row.is-printing">
+                                <Setter Property="Background" Value="#458588" />
+                            </Style>
+                            <Style Selector="Border.row.is-cancelled">
+                                <Setter Property="Background" Value="#FE8019" />
+                            </Style>
+                            <Style Selector="Border.row.is-rejected">
+                                <Setter Property="Background" Value="#FB4934" />
+                            </Style>
+                        </ItemsControl.Styles>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:PrintJobVM">
+                                <StackPanel>
+
+                                    <!-- One “row” with optional expanded details below -->
+                                    <Border Classes="row"
+                                            CornerRadius="10"
+                                            Margin="0,5"
+                                            Padding="10"
+                                            MinHeight="44"
+                                            Classes.is-queue="{Binding Model, Converter={StaticResource IsQueue}}"
+                                            Classes.is-awaitingpayment="{Binding Model, Converter={StaticResource IsAwaiting}}"
+                                            Classes.is-completed="{Binding JobStatus, Converter={StaticResource StatusIs}, ConverterParameter=completed}"
+                                            Classes.is-printing="{Binding JobStatus, Converter={StaticResource StatusIs}, ConverterParameter=printing}"
+                                            Classes.is-cancelled="{Binding JobStatus, Converter={StaticResource StatusIs}, ConverterParameter=cancelled}"
+                                            Classes.is-rejected="{Binding JobStatus, Converter={StaticResource StatusIs}, ConverterParameter=rejected}">
+
+                                        <!-- 9 columns total (chevron + 8 data cols) -->
+                                        <Grid RowDefinitions="Auto,Auto"
+                                              ColumnDefinitions="24,*,*,*,*,*,*,1.85*,140">
+
+                                            <!-- Chevron toggle (col 0) -->
+                                            <ToggleButton Grid.Column="0"
+                                                          Width="24" Height="24"
+                                                          BorderThickness="1"
+                                                          Background="Transparent"
+                                                          Cursor="Hand"
+                                                          Padding="0"
+                                                          HorizontalAlignment="Left"
+                                                          VerticalAlignment="Center"
+                                                          IsVisible="{Binding CanExpand}"
+                                                          IsEnabled="{Binding CanExpand}"
+                                                          IsChecked="{Binding IsExpanded}">
+                                                <TextBlock
+                                                    Text="{Binding IsExpanded, Converter={StaticResource Chevron}}"
+                                                    FontSize="10"
+                                                    Foreground="#EBDBB2"
+                                                    FontFamily="Segoe UI Symbol, Segoe UI, Arial"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center" />
+                                            </ToggleButton>
+
+
+                                            <!-- PR button (col 1) -->
+                                            <Button Grid.Column="1"
+                                                    Content="{Binding Id, StringFormat=PR-{0}}"
+                                                    Command="{Binding $parent[ItemsControl].((vm:PrintJobsViewModel)DataContext).ShowJobDetailsCommand}"
+                                                    CommandParameter="{Binding Model}"
+                                                    Background="Transparent"
+                                                    Foreground="{StaticResource GruvFg}"
+                                                    BorderBrush="White"
+                                                    BorderThickness="2"
+                                                    CornerRadius="6"
+                                                    Cursor="Hand"
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Left" />
+
+                                            <!-- Status (col 2) -->
+                                            <TextBlock Grid.Column="2"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       Foreground="{StaticResource GruvFg}">
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource DisplayStatus}">
+                                                        <Binding Path="JobStatus" />
+                                                        <Binding Path="Paid" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+
+                                            <!-- # of copies (col 3) -->
+                                            <TextBlock Grid.Column="3" Text="{Binding NumCopies}"
+                                                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                       Foreground="{StaticResource GruvFg}" />
+
+                                            <TextBlock Grid.Column="4"
+                                                       Text="{Binding PrinterModelName}"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       Foreground="{StaticResource GruvFg}" />
+
+                                            <!-- Autostart (col 5) -->
+                                            <TextBlock Grid.Column="5" Text="{Binding PrinterModel.Autostart}"
+                                                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                       Foreground="{StaticResource GruvFg}" />
+
+                                            <!-- Print Time (col 6) -->
+                                            <TextBlock Grid.Column="6" Text="{Binding PrintTime}"
+                                                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                       Foreground="{StaticResource GruvFg}" />
+
+                                            <!-- Submitted At (col 7) -->
+                                            <TextBlock Grid.Column="7" Text="{Binding SubmittedAt}"
+                                                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                       Foreground="{StaticResource GruvFg}" />
+
+                                            <!-- Paid button (col 8) -->
+                                            <Button Grid.Column="8"
+                                                    Command="{Binding $parent[ItemsControl].((vm:PrintJobsViewModel)DataContext).MarkPaidCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    Background="Transparent"
+                                                    Foreground="{StaticResource GruvFg}"
+                                                    BorderBrush="White"
+                                                    BorderThickness="2"
+                                                    CornerRadius="6"
+                                                    Cursor="Hand"
+                                                    Padding="8,2"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Center"
+                                                    IsVisible="{Binding JobStatus, Converter={StaticResource ShowPaidButton}}">
+                                                <Button.Styles>
+                                                    <Style Selector="Button">
+                                                        <Setter Property="Content" Value="Mark Paid" />
+                                                        <Setter Property="IsEnabled" Value="True" />
+                                                    </Style>
+                                                    <Style Selector="Button:disabled">
+                                                        <Setter Property="BorderBrush" Value="#a89984" />
+                                                        <Setter Property="Foreground" Value="#EBDBB2" />
+                                                        <Setter Property="Content" Value="Paid ✓" />
+                                                    </Style>
+                                                </Button.Styles>
+                                                <!-- Disable when already paid -->
+                                                <Button.IsEnabled>
+                                                    <Binding Path="Paid">
+                                                        <Binding.Converter>
+                                                            <conv:InverseBoolConverter />
+                                                        </Binding.Converter>
+                                                    </Binding>
+                                                </Button.IsEnabled>
+                                            </Button>
+
+                                            <!-- Expanded Copies Panel (row 1 spans cols 1–8) -->
+                                            <Border Grid.Row="1"
+                                                    Grid.Column="1" Grid.ColumnSpan="8"
+                                                    IsVisible="{Binding ShowExpandedPanel}"
+                                                    Margin="0,8,0,6"
+                                                    Padding="10"
+                                                    CornerRadius="8"
+                                                    Background="#3C3836">
+                                                <StackPanel>
+                                                    <!-- copies header -->
+                                                    <Grid ColumnDefinitions="80,*,*,*,*"
+                                                          Margin="0,0,0,6">
+                                                        <TextBlock Grid.Column="0" Text="#" Foreground="#EBDBB2"
+                                                                   FontWeight="Bold" />
+                                                        <TextBlock Grid.Column="1" Text="Status" Foreground="#EBDBB2"
+                                                                   FontWeight="Bold" />
+                                                        <TextBlock Grid.Column="2" Text="Printer" Foreground="#EBDBB2"
+                                                                   FontWeight="Bold" />
+                                                        <TextBlock Grid.Column="3" Text="Elapsed" Foreground="#EBDBB2"
+                                                                   FontWeight="Bold" />
+                                                        <TextBlock Grid.Column="4" Text="Completed At"
+                                                                   Foreground="#EBDBB2"
+                                                                   FontWeight="Bold" />
+                                                    </Grid>
+
+                                                    <!-- copies rows -->
+                                                    <ItemsControl ItemsSource="{Binding Copies}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Grid ColumnDefinitions="80,*,*,*,*"
+                                                                      Margin="0,2,0,2">
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Text="{Binding CopyIndex}"
+                                                                               Foreground="{StaticResource GruvFg}" />
+                                                                    <TextBlock Grid.Column="1" Text="{Binding Status}"
+                                                                               Foreground="{StaticResource GruvFg}" />
+                                                                    <TextBlock Grid.Column="2"
+                                                                               Text="{Binding PrinterName}"
+                                                                               Foreground="{StaticResource GruvFg}" />
+                                                                    <TextBlock Grid.Column="3" Text="{Binding Elapsed}"
+                                                                               Foreground="{StaticResource GruvFg}" />
+                                                                    <TextBlock Grid.Column="4"
+                                                                               Text="{Binding CompletedAt}"
+                                                                               Foreground="{StaticResource GruvFg}" />
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,298 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="native_desktop_app.Views.HomeView"
+             x:DataType="vm:HomeViewModel"
+             xmlns:vm="using:native_desktop_app.ViewModels">
+    <!-- Box in middle is twice the size as the other two -->
+    <Grid ColumnDefinitions="*,2*,*"
+          Margin="20">
+
+        <!-- Printing Box -->
+        <Border Grid.Column="0" Background="#3c3836" CornerRadius="10" Margin="5, 0">
+            <Grid RowDefinitions="Auto,*">
+                <!-- Printing Header section -->
+                <Border Grid.Row="0" Background="#3c3836" CornerRadius="10 10 0 0">
+                    <TextBlock Text="Printing" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Margin="0, 5, 0, 0" FontSize="17" />
+                </Border>
+
+                <!-- Printing Detail section -->
+                <Grid Grid.Row="1" RowDefinitions="*,6*,*">
+                    <Grid Grid.Row="0" ColumnDefinitions="*, *, *">
+                        <TextBlock Grid.Column="0" Text="PR #" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Margin="2, 10" FontSize="13" />
+                        <TextBlock Grid.Column="1" Text="Printer" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" Margin="2, 10" FontSize="13" />
+                        <TextBlock Grid.Column="2" Text="Started At" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Margin="2, 10" FontSize="13" />
+                    </Grid>
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding ActivePrints}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,*,*" Margin="0,2">
+                                    <Border Grid.Column="0" CornerRadius="10, 0, 0, 10" Background="#504945"
+                                            Margin="10, 5, 0, 5">
+                                        <TextBlock Text="{Binding PrintJobId, StringFormat=PR-{0}}"
+                                                   HorizontalAlignment="Center" FontSize="13" />
+                                    </Border>
+                                    <Border Grid.Column="1" Background="#504945" Margin="0, 5, 0, 5">
+                                        <TextBlock Text="{Binding PrinterName}" HorizontalAlignment="Center"
+                                                   FontSize="13" />
+                                    </Border>
+                                    <Border Grid.Column="2" CornerRadius="0, 10 , 10 ,0" Background="#504945"
+                                            Margin="0, 5, 10, 5">
+                                        <TextBlock Text="{Binding StartedAt, StringFormat={}{0:MM/dd HH:mm}}"
+                                                   HorizontalAlignment="Center" FontSize="13" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border Grid.Row="2" Background="#504945" CornerRadius="10" Margin="10">
+                        <TextBlock Text="Queue" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5, 5"
+                                   FontSize="14" />
+                    </Border>
+                    <Border Grid.Row="2" Background="#504945" CornerRadius="10" Margin="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Queued" HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" Margin="5,5" FontSize="14" />
+                            <TextBlock Grid.Column="1" Text="{Binding QueueCounter}" HorizontalAlignment="Right"
+                                       VerticalAlignment="Center" Margin="5,5" FontSize="14" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Printer Status Box -->
+        <Border Grid.Column="1" Background="#3c3836" CornerRadius="10" Margin="5, 0">
+            <Grid RowDefinitions="Auto,*">
+                <!-- Printer Status section -->
+                <Border Grid.Row="0" Background="#3c3836" CornerRadius="10 10 0 0">
+                    <TextBlock Text="Printer Status" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Margin="0, 5" FontSize="17" />
+                </Border>
+
+                <!-- Printer Status Detail section -->
+                <Grid Grid.Row="1">
+                    <Grid RowDefinitions="*, *, *, *" ColumnDefinitions="*, *">
+                        <Border Grid.Column="0" Grid.Row="0" Background="#504945" CornerRadius="10" Margin="10">
+                            <Grid RowDefinitions=".25*, *">
+                                <TextBlock Grid.Row="0" Text="{Binding Printer1.Name}" HorizontalAlignment="Center"
+                                           VerticalAlignment="Top" Margin="0, 5" FontSize="17" />
+                                <Grid Grid.Row="1" ColumnDefinitions="*, *, *">
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer1.WiFiStatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer1.StatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="0" Grid.Row="1" Background="#504945" CornerRadius="10" Margin="10">
+                            <Grid RowDefinitions=".25*, *">
+                                <TextBlock Text="{Binding Printer3.Name}" HorizontalAlignment="Center"
+                                           VerticalAlignment="Top"
+                                           Margin="0, 5" FontSize="17" />
+                                <Grid Grid.Row="1" ColumnDefinitions="*, *, *">
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer3.WiFiStatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer3.StatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="0" Grid.Row="2" Background="#504945" CornerRadius="10" Margin="10">
+                            <Grid RowDefinitions=".25*, *">
+                                <TextBlock Text="{Binding Printer5.Name}" HorizontalAlignment="Center"
+                                           VerticalAlignment="Top"
+                                           Margin="0, 5" FontSize="17" />
+                                <Grid Grid.Row="1" ColumnDefinitions="*, *, *">
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer5.WiFiStatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer5.StatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="0" Grid.Row="3" Background="#504945" CornerRadius="10" Margin="10">
+                            <Grid RowDefinitions=".25*, *">
+                                <TextBlock Text="{Binding Printer7.Name}" HorizontalAlignment="Center"
+                                           VerticalAlignment="Top"
+                                           Margin="0, 5" FontSize="17" />
+                                <Grid Grid.Row="1" ColumnDefinitions="*, *, *">
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer7.WiFiStatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer7.StatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="1" Grid.Row="0" Background="#504945" CornerRadius="10" Margin="10">
+                            <Grid RowDefinitions=".25*, *">
+                                <TextBlock Text="{Binding Printer2.Name}" HorizontalAlignment="Center"
+                                           VerticalAlignment="Top"
+                                           Margin="0, 5" FontSize="17" />
+                                <Grid Grid.Row="1" ColumnDefinitions="*, *, *">
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer2.WiFiStatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer2.StatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="1" Grid.Row="1" Background="#504945" CornerRadius="10" Margin="10">
+                            <Grid RowDefinitions=".25*, *">
+                                <TextBlock Text="{Binding Printer4.Name}" HorizontalAlignment="Center"
+                                           VerticalAlignment="Top"
+                                           Margin="0, 5" FontSize="17" />
+                                <Grid Grid.Row="1" ColumnDefinitions="*, *, *">
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer4.WiFiStatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer4.StatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="1" Grid.Row="2" Background="#504945" CornerRadius="10" Margin="10">
+                            <Grid RowDefinitions=".25*, *">
+                                <TextBlock Text="{Binding Printer6.Name}" HorizontalAlignment="Center"
+                                           VerticalAlignment="Top"
+                                           Margin="0, 5" FontSize="17" />
+                                <Grid Grid.Row="1" ColumnDefinitions="*, *, *">
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer6.WiFiStatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer6.StatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="1" Grid.Row="3" Background="#504945" CornerRadius="10" Margin="10">
+                            <Grid RowDefinitions=".25*, *">
+                                <TextBlock Text="{Binding Printer8.Name}" HorizontalAlignment="Center"
+                                           VerticalAlignment="Top"
+                                           Margin="0, 5" FontSize="17" />
+                                <Grid Grid.Row="1" ColumnDefinitions="*, *, *">
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer8.WiFiStatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Margin="5">
+                                        <Image Source="{Binding Printer8.StatusImage}" Width="60"
+                                               Height="60" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Stats/Messages Box -->
+        <Border Grid.Column="2" Background="#3c3836" CornerRadius="10" Margin="5, 0">
+            <Grid RowDefinitions="Auto,*">
+                <!-- Stats Header section -->
+                <Border Grid.Row="0" Background="#3c3836" CornerRadius="10 10 0 0">
+                    <TextBlock Text="OpenFarm Stats" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Margin="0, 5" FontSize="17" />
+                </Border>
+                <Grid Grid.Row="1" RowDefinitions="*,Auto, Auto, *">
+                    <Grid Grid.Row="0" RowDefinitions="*,*,*,*" Margin="10">
+                        <Border Grid.Row="0" CornerRadius="10, 10, 0, 0" Background="#504945">
+                            <TextBlock Text="Lifetime Prints" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                       Margin="5, 5" FontSize="14" />
+                        </Border>
+                        <Border Grid.Row="0" CornerRadius="10, 10, 0, 0">
+                            <TextBlock Text="{Binding TotalJobs}" HorizontalAlignment="Right"
+                                       VerticalAlignment="Center" Margin="5, 5"
+                                       FontSize="14" />
+                        </Border>
+                        <Border Grid.Row="1" Background="#504945">
+                            <TextBlock Text="Lifetime Fails" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                       Margin="5, 5" FontSize="14" />
+                        </Border>
+                        <Border Grid.Row="1" CornerRadius="10, 10, 0, 0">
+                            <TextBlock Text="{Binding FailedCount}" HorizontalAlignment="Right"
+                                       VerticalAlignment="Center" Margin="5, 5"
+                                       FontSize="14" />
+                        </Border>
+                        <Border Grid.Row="2" Background="#504945">
+                            <TextBlock Text="Lifetime Cancels" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                       Margin="5, 5" FontSize="14" />
+                        </Border>
+                        <Border Grid.Row="2" CornerRadius="10, 10, 0, 0">
+                            <TextBlock Text="{Binding CancelledCount}" HorizontalAlignment="Right"
+                                       VerticalAlignment="Center" Margin="5, 5"
+                                       FontSize="14" />
+                        </Border>
+                        <Border Grid.Row="3" CornerRadius="0, 0, 10, 10" Background="#504945">
+                            <TextBlock Text="Lifetime Rejected Prints" HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       Margin="5, 5" FontSize="14" />
+                        </Border>
+                        <Border Grid.Row="3" CornerRadius="10, 10, 0, 0">
+                            <TextBlock Text="{Binding RejectedCount}" HorizontalAlignment="Right"
+                                       VerticalAlignment="Center" Margin="5, 5"
+                                       FontSize="14" />
+                        </Border>
+                    </Grid>
+                    <!-- Messages Header section -->
+                    <Border Grid.Row="2" Background="#3c3836" Margin="5, 0">
+                        <TextBlock Text="Messages" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 5"
+                                   FontSize="17" />
+                    </Border>
+                    <Border Grid.Row="3" Background="#504945" CornerRadius="10" Margin="10">
+                        <TextBlock Text="No New Messages" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Margin="5" FontSize="14" Opacity=".5" />
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

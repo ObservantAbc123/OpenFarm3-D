@@ -1,0 +1,54 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="native_desktop_app.App"
+             xmlns:local="using:native_desktop_app"
+             RequestedThemeVariant="Default">
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Resources>
+        <SolidColorBrush x:Key="GruvBg">#282828</SolidColorBrush>
+        <SolidColorBrush x:Key="GruvFg">#ebdbb2</SolidColorBrush>
+        <SolidColorBrush x:Key="GruvRed">#cc241d</SolidColorBrush>
+        <SolidColorBrush x:Key="GruvGreen">#98971a</SolidColorBrush>
+        <SolidColorBrush x:Key="GruvYellow">#d79921</SolidColorBrush>
+        <SolidColorBrush x:Key="GruvBlue">#458588</SolidColorBrush>
+        <SolidColorBrush x:Key="GruvPurple">#b16286</SolidColorBrush>
+        <SolidColorBrush x:Key="GruvAqua">#689d6a</SolidColorBrush>
+        <SolidColorBrush x:Key="GruvGray">#928374</SolidColorBrush>
+        <SolidColorBrush x:Key="GruvDarkGray">#3c3836</SolidColorBrush>
+        <SolidColorBrush x:Key="GruvLightGray">#a89984</SolidColorBrush>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource GruvFg}" />
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="Foreground" Value="{StaticResource GruvFg}" />
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="Foreground" Value="{StaticResource GruvFg}" />
+        </Style>
+        <Style Selector="Label">
+            <Setter Property="Foreground" Value="{StaticResource GruvFg}" />
+        </Style>
+        <Style Selector="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource GruvFg}" />
+        </Style>
+        <Style Selector="RadioButton">
+            <Setter Property="Foreground" Value="{StaticResource GruvFg}" />
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="Foreground" Value="{StaticResource GruvFg}" />
+        </Style>
+        <Style Selector="TabItem">
+            <Setter Property="Foreground" Value="{StaticResource GruvFg}" />
+        </Style>
+    </Application.Styles>
+</Application>

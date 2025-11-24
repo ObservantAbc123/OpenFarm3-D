@@ -1,0 +1,240 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:native_desktop_app.ViewModels"
+             x:Class="native_desktop_app.Views.StatsView"
+             x:DataType="vm:StatsViewModel"
+             Background="#282828">
+    <DockPanel LastChildFill="True">
+        <!-- Header -->
+        <Border DockPanel.Dock="Top" Background="#282828" Padding="12">
+            <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto">
+                <TextBlock Grid.Row="0" Grid.Column="0"
+                           Text="Stats"
+                           Foreground="#EBDBB2"
+                           FontSize="22" FontWeight="Bold" />
+
+                <Button Grid.Row="0" Grid.Column="1" Margin="8,0,0,0"
+                        Content="Refresh"
+                        Command="{Binding RefreshCommand}"
+                        Background="#3C3836" Foreground="#EBDBB2" BorderBrush="#504945" />
+                <Button Grid.Row="0" Grid.Column="2" Margin="8,0,0,0"
+                        Content="Export CSV"
+                        Command="{Binding ExportCsvCommand}"
+                        Background="#3C3836" Foreground="#EBDBB2" BorderBrush="#504945" />
+
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Margin="0,6,0,0"
+                           Text="{Binding SummaryLine}"
+                           Foreground="#BDAE93" />
+            </Grid>
+        </Border>
+
+        <!-- Body -->
+        <ScrollViewer>
+            <Grid Margin="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- PRINT JOBS -->
+                <!-- Section header -->
+                <Grid Grid.Row="0" Grid.Column="0" Margin="6,0,6,6" ColumnDefinitions="6,*,Auto">
+                    <Border Grid.Column="0" CornerRadius="3" />
+                    <TextBlock Grid.Column="1" Text="PRINT JOBS" Foreground="#EBDBB2"
+                               FontWeight="Bold" FontSize="14" Margin="8,0,0,0" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="2" Text="{Binding SummaryLine}" Foreground="#BDAE93"
+                               FontSize="12" VerticalAlignment="Center" />
+                </Grid>
+
+                <!-- Print Job KPIs -->
+                <Border Grid.Row="0" Grid.Column="0" Margin="6,30,6,6" Background="#3C3836" CornerRadius="16"
+                        Padding="12">
+                    <WrapPanel ItemWidth="220" MinWidth="320">
+                        <!-- Total -->
+                        <Border Background="#3C3836" CornerRadius="12" Padding="12" Margin="6" BorderBrush="#504945"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Total Jobs" Foreground="#BDAE93" />
+                                <TextBlock Text="{Binding TotalJobs}" Foreground="#EBDBB2" FontSize="18"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+                        <!-- Completed -->
+                        <Border Background="#3C3836" CornerRadius="12" Padding="12" Margin="6" BorderBrush="#504945"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Completed" Foreground="#BDAE93" />
+                                <TextBlock Text="{Binding CompletedCount}" Foreground="#EBDBB2" FontSize="18"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+                        <!-- Failed -->
+                        <Border Background="#3C3836" CornerRadius="12" Padding="12" Margin="6" BorderBrush="#504945"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Failed" Foreground="#BDAE93" />
+                                <TextBlock Text="{Binding FailedCount}" Foreground="#EBDBB2" FontSize="18"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+                        <!-- Cancelled -->
+                        <Border Background="#3C3836" CornerRadius="12" Padding="12" Margin="6" BorderBrush="#504945"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Cancelled" Foreground="#BDAE93" />
+                                <TextBlock Text="{Binding CancelledCount}" Foreground="#EBDBB2" FontSize="18"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+                        <!-- Success -->
+                        <Border Background="#3C3836" CornerRadius="12" Padding="12" Margin="6" BorderBrush="#504945"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Success Rate" Foreground="#BDAE93" />
+                                <TextBlock Text="{Binding SuccessRateText}" Foreground="#EBDBB2" FontSize="18"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+                </Border>
+
+                <!-- Jobs by Model -->
+                <Border Grid.Row="1" Grid.Column="0" Margin="6" Background="#3C3836" CornerRadius="16" Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Jobs by Printer Model" Foreground="#EBDBB2" FontWeight="Bold" />
+                        <ItemsControl ItemsSource="{Binding JobsByModel}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto" Margin="2">
+                                        <TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="#EBDBB2" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="#BDAE93"
+                                                   Margin="12,0,0,0" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Jobs by Status -->
+                <Border Grid.Row="2" Grid.Column="0" Margin="6" Background="#3C3836" CornerRadius="16" Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Jobs by Status" Foreground="#EBDBB2" FontWeight="Bold" />
+                        <ItemsControl ItemsSource="{Binding JobsByStatus}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto" Margin="2">
+                                        <TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="#EBDBB2" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="#BDAE93"
+                                                   Margin="12,0,0,0" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- PRINTERS -->
+                <!-- Section header -->
+                <Grid Grid.Row="0" Grid.Column="1" Margin="6,0,6,6" ColumnDefinitions="6,*,Auto">
+                    <Border Grid.Column="0" CornerRadius="3" />
+                    <TextBlock Grid.Column="1" Text="PRINTERS" Foreground="#EBDBB2"
+                               FontWeight="Bold" FontSize="14" Margin="8,0,0,0" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="2" Text="Live snapshot" Foreground="#BDAE93"
+                               FontSize="12" VerticalAlignment="Center" />
+                </Grid>
+
+                <!-- Printer KPIs -->
+                <Border Grid.Row="0" Grid.Column="1" Margin="6,30,6,6" Background="#3C3836" CornerRadius="16"
+                        Padding="12">
+                    <WrapPanel ItemWidth="220" MinWidth="320">
+                        <Border Background="#3C3836" CornerRadius="12" Padding="12" Margin="6" BorderBrush="#504945"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Printers (Total)" Foreground="#BDAE93" />
+                                <TextBlock Text="{Binding PrintersTotal}" Foreground="#EBDBB2" FontSize="18"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#3C3836" CornerRadius="12" Padding="12" Margin="6" BorderBrush="#504945"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Enabled" Foreground="#BDAE93" />
+                                <TextBlock Text="{Binding PrintersEnabled}" Foreground="#EBDBB2" FontSize="18"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#3C3836" CornerRadius="12" Padding="12" Margin="6" BorderBrush="#504945"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Disabled" Foreground="#BDAE93" />
+                                <TextBlock Text="{Binding PrintersDisabled}" Foreground="#EBDBB2" FontSize="18"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#3C3836" CornerRadius="12" Padding="12" Margin="6" BorderBrush="#504945"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Printing Now" Foreground="#BDAE93" />
+                                <TextBlock Text="{Binding PrintersPrinting}" Foreground="#EBDBB2" FontSize="18"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#3C3836" CornerRadius="12" Padding="12" Margin="6" BorderBrush="#504945"
+                                BorderThickness="1">
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Idle" Foreground="#BDAE93" />
+                                <TextBlock Text="{Binding PrintersIdle}" Foreground="#EBDBB2" FontSize="18"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+                </Border>
+
+                <!-- Recent Failures -->
+                <Border Grid.Row="1" Grid.Column="1" Margin="6" Background="#3C3836" CornerRadius="16" Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Recent Failures" Foreground="#EBDBB2" FontWeight="Bold" />
+                        <ItemsControl ItemsSource="{Binding RecentFailures}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="60,160,170,*" Margin="2">
+                                        <TextBlock Grid.Column="0" Text="{Binding Id}" Foreground="#EBDBB2" />
+                                        <TextBlock Grid.Column="1" Text="{Binding PrinterModel.Model}"
+                                                   Foreground="#BDAE93" />
+                                        <TextBlock Grid.Column="2" Text="{Binding CreatedAt}" Foreground="#BDAE93" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Longest Jobs -->
+                <Border Grid.Row="2" Grid.Column="1" Margin="6" Background="#3C3836" CornerRadius="16" Padding="12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Longest Jobs" Foreground="#EBDBB2" FontWeight="Bold" />
+                        <ItemsControl ItemsSource="{Binding LongestJobs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="60,160,120,120" Margin="2">
+                                        <TextBlock Grid.Column="0" Text="{Binding Id}" Foreground="#EBDBB2" />
+                                        <TextBlock Grid.Column="1" Text="{Binding PrinterModel.Model}"
+                                                   Foreground="#BDAE93" />
+                                        <TextBlock Grid.Column="2" Text="{Binding PrintTime}" Foreground="#BDAE93" />
+                                        <TextBlock Grid.Column="3" Text="{Binding JobStatus}" Foreground="#BDAE93" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>
